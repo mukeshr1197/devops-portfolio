@@ -8,14 +8,7 @@ A small Flask application deployed to Azure using a fully automated, Infrastruct
 
 ## Architecture
 
-```
-GitHub repo ──push──> GitHub Actions ──test, build, scan──> Azure Container Registry
-                                              │
-                                              └──deploy──> Azure Container Apps
-                                                                   │
-                                                    ┌──────────────┼──────────────┐
-                                              Azure Monitor   Log Analytics   Action Group
-                                              (alerts)        (logs)         (email)
+![Architecture](docs/architecture.svg)
 
 Terraform provisions all of the above, with remote state in an Azure Storage account.
 Azure Entra ID (OIDC) lets GitHub Actions authenticate to Azure with no stored passwords.
