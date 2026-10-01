@@ -21,3 +21,8 @@ variable "container_app_env_name" {
 variable "container_app_name" {
   default = "ca-devops-app"
 }
+
+variable "alert_email" {
+  description = "Email address to receive alerts"
+  type        = string
+}

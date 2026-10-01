@@ -61,3 +61,44 @@ resource "azurerm_container_app" "app" {
     value = azurerm_container_registry.acr.admin_password
   }
 }
+
+resource "azurerm_monitor_action_group" "main" {
+  name                = "ag-devops-portfolio"
+  resource_group_name = azurerm_resource_group.main.name
+  short_name          = "devopsag"
+
+  email_receiver {
+    name          = "owner"
+    email_address = var.alert_email
+  }
+}
+
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "app_errors" {
+  name                = "alert-container-app-errors"
+  resource_group_name = azurerm_resource_group.main.name
+  location            = azurerm_resource_group.main.location
+
+  evaluation_frequency = "PT5M"
+  window_duration       = "PT5M"
+  scopes                = [azurerm_log_analytics_workspace.law.id]
+  severity               = 2
+
+  criteria {
+    query                   = <<-QUERY
+      ContainerAppConsoleLogs_CL
+      | where Log_s contains "Error" or Log_s contains "error"
+    QUERY
+    time_aggregation_method = "Count"
+    threshold               = 0
+    operator                = "GreaterThan"
+
+    failing_periods {
+      minimum_failing_periods_to_trigger_alert = 1
+      number_of_evaluation_periods             = 1
+    }
+  }
+
+  action {
+    action_groups = [azurerm_monitor_action_group.main.id]
+  }
+}
